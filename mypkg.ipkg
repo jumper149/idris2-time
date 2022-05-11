@@ -1,0 +1,9 @@
+package parser
+
+modules = Data.Time
+
+depends = contrib
+        , elab-util
+        , sop
+
+sourcedir = "src"
