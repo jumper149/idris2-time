@@ -1,6 +1,7 @@
 package parser
 
 modules = Data.Time
+        , Data.Time.ISO8601
 
 depends = contrib
         , elab-util
