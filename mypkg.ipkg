@@ -1,4 +1,4 @@
-package parser
+package time
 
 modules = Data.Time
         , Data.Time.ISO8601
