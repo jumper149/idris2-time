@@ -5,19 +5,19 @@ import Data.Fin
 namespace Year
 
   public export
-  data Month : Type where
-    January : Month
-    February : Month
-    March : Month
-    April : Month
-    May : Month
-    June : Month
-    July : Month
-    August : Month
-    September : Month
-    October : Month
-    November : Month
-    Dezember : Month
+  data Month
+    = January
+    | February
+    | March
+    | April
+    | May
+    | June
+    | July
+    | August
+    | September
+    | October
+    | November
+    | Dezember
 
   days : (leapYear : Bool) -> Nat
   days leapYear = if leapYear then 366 else 365
@@ -44,35 +44,39 @@ namespace Month
     Dezember => 31
 
   public export
-  data Day : (leapYear : Bool) -> (month : Year.Month) -> Type where
-    MkDay : Fin (days leapYear month) -> Day leapYear month
+  record Day (leapYear : Bool) (month : Year.Month) where
+    constructor MkDay
+    getDay : Fin (days leapYear month)
 
 namespace Week
 
   public export
-  data Day : Type where
-    Monday : Day
-    Tuesday : Day
-    Wednesday : Day
-    Thursday : Day
-    Friday : Day
-    Saturday : Day
-    Sunday : Day
+  data Day
+    = Monday
+    | Tuesday
+    | Wednesday
+    | Thursday
+    | Friday
+    | Saturday
+    | Sunday
 
 namespace Day
 
   public export
-  data Hour : Type where
-    MkHour : Fin 24 -> Hour
+  record Hour where
+    constructor MkHour
+    getHour : Fin 24
 
 namespace Hour
 
   public export
-  data Minute : Type where
-    MkMinute : Fin 60 -> Minute
+  record Minute where
+    constructor MkMinute
+    getMinute : Fin 60
 
 namespace Minute
 
   public export
-  data Second : Type where
-    MkSecond : Fin 60 -> Second
+  record Second where
+    constructor MkSecond
+    getSecond : Fin 60
