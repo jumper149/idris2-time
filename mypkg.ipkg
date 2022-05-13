@@ -2,6 +2,7 @@ package time
 
 modules = Data.Time
         , Data.Time.ISO8601
+        , Data.Time.Julian
 
 depends = contrib
         , elab-util
