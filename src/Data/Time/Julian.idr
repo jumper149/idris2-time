@@ -13,8 +13,8 @@ record JDN where
 ||| It consists of a Julian day number (JDN) plus the fraction of a day, that has passed, until the next Julian day starts at noon.
 record JD where
   constructor MkJD
-  jdn : JDN
-  fraction : Double -- TODO: This should be a rational number `x` respecting `0 <= x < 1`.
+  jdJDN : JDN
+  jdFraction : Double -- TODO: This should be a rational number `x` respecting `0 <= x < 1`.
 
 ||| A year in the Julian calendar.
 -- TODO: What and when is/was the first year? Is that year 0 or 1?
@@ -64,12 +64,28 @@ namespace Annus
   record Dies (bisextilis : Bool) where
     constructor MkDies
     getDies : Fin (dies bisextilis)
+
+  public export
+  record Date where
+    constructor MkDate
+    annus : Annus
+    dies : Dies (bisextus annus)
+
   -- TODO
   public export
-  mkJDN : (annus : Annus) ->
-          (dies : Annus.Dies (bisextus annus)) ->
+  toJDN : (date : Date) ->
           JDN
-  mkJDN annus dies = ?mkJDN_rhs
+  toJDN date = ?toJDN_rhs
+
+  -- TODO
+  public export
+  fromJDN : (jdn : JDN) ->
+            Date
+  fromJDN jdn = ?fromJDN_rhs
+
+  -- TODO
+  proof1 : x = fromJDN (toJDN x)
+  proof2 : x = toJDN (fromJDN x)
 
 namespace Mensis
 
@@ -95,13 +111,28 @@ namespace Mensis
     constructor MkDies
     getDies : Fin (dies bisextilis mensis)
 
+  public export
+  record Date where
+    constructor MkDate
+    annus : Annus
+    mensis : Annus.Mensis
+    dies : Dies (bisextus annus) mensis
+
   -- TODO
   public export
-  mkJDN : (annus : Annus) ->
-          (mensis : Annus.Mensis) ->
-          (dies : Mensis.Dies (bisextus annus) mensus) ->
+  toJDN : (date : Mensis.Date) -> -- TODO: Why is it necessary to qualify the type of `date`.
           JDN
-  mkJDN annus mensis dies = ?mkJDN_rhs
+  toJDN date = ?toJDN_rhs
+
+  -- TODO
+  public export
+  fromJDN : (jdn : JDN) ->
+            Mensis.Date
+  fromJDN jdn = ?fromJDN_rhs
+
+  -- TODO
+  proof1 : x = Mensis.fromJDN (Mensis.toJDN x)
+  proof2 : x = Mensis.toJDN (Mensis.fromJDN x)
 
 namespace Dies
 
