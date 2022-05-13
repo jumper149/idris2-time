@@ -7,7 +7,7 @@ import Data.Fin
 ||| A new day starts at noon and lasts until the next noon.
 record JDN where
   constructor MkJDN
-  getJDN : Integer
+  getJDN : Nat
 
 ||| The Julian date (JD) is an instant in time.
 ||| It consists of a Julian day number (JDN) plus the fraction of a day, that has passed, until the next Julian day starts at noon.
@@ -17,15 +17,21 @@ record JD where
   getFraction : Double -- TODO: This should be a rational number `x` respecting `0 <= x < 1`.
 
 ||| A year in the Julian calendar.
--- TODO: What and when is/was the first year? Is that year 0 or 1?
+||| Usually the first year is labeled one, but here we use zero as our first year.
 public export
 record Annus where
   constructor MkAnnus
-  getAnnus : Integer
+  getAnnus : Nat
 
-||| Every 4th year in the Julian calendar is a leap year.
+||| Every 4th year is a leap year.
 bisextus : Annus -> Bool
-bisextus = (== 0) . (`mod` 4) . getAnnus -- TODO: Change `0`, to whatever was the first leap year.
+bisextus annus =
+  case getAnnus annus of
+    Z => True
+    S Z => False
+    S (S Z) => False
+    S (S (S Z)) => False
+    S (S (S (S n))) => bisextus $ MkAnnus n
 
 namespace Annus
 
@@ -71,11 +77,16 @@ namespace Annus
     annus : Annus
     dies : Dies (bisextus annus)
 
-  -- TODO
   public export
   toJDN : (date : Date) ->
           JDN
-  toJDN date = ?toJDN_rhs
+  toJDN date =
+    case getAnnus date.annus of
+    Z => MkJDN . finToNat $ getDies date.dies
+    S Z => MkJDN $ dies False + getJDN (toJDN $ MkDate date.annus date.dies)
+    S (S Z) => MkJDN $ dies False + dies False + getJDN (toJDN $ MkDate date.annus date.dies)
+    S (S (S Z)) => MkJDN $ dies False + dies False + dies False + getJDN (toJDN $ MkDate date.annus date.dies)
+    S (S (S (S n))) => MkJDN $ dies False + dies False + dies False + dies True + getJDN (toJDN $ MkDate date.annus date.dies)
 
   -- TODO
   public export
