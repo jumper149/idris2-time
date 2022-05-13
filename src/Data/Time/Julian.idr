@@ -13,8 +13,8 @@ record JDN where
 ||| It consists of a Julian day number (JDN) plus the fraction of a day, that has passed, until the next Julian day starts at noon.
 record JD where
   constructor MkJD
-  jdJDN : JDN
-  jdFraction : Double -- TODO: This should be a rational number `x` respecting `0 <= x < 1`.
+  getJDN : JDN
+  getFraction : Double -- TODO: This should be a rational number `x` respecting `0 <= x < 1`.
 
 ||| A year in the Julian calendar.
 -- TODO: What and when is/was the first year? Is that year 0 or 1?
