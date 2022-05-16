@@ -1,4 +1,4 @@
-module Data.Time.Julian
+module Data.Time.Calendar.Julian
 
 import Data.Fin
 

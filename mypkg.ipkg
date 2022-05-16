@@ -1,8 +1,8 @@
 package time
 
 modules = Data.Time
+        , Data.Time.Calendar.Julian
         , Data.Time.ISO8601
-        , Data.Time.Julian
 
 depends = contrib
         , elab-util
