@@ -144,27 +144,3 @@ namespace Mensis
   -- TODO
   proof1 : x = Mensis.fromJDN (Mensis.toJDN x)
   proof2 : x = Mensis.toJDN (Mensis.fromJDN x)
-
-namespace Dies
-
-  ||| An hour in a day.
-  public export
-  record Hora where
-    constructor MkHora
-    getHora : Fin 24
-
-namespace Hora
-
-  ||| A minute in an hour.
-  public export
-  record Minute where
-    constructor MkMinute
-    getMinute : Fin 60
-
-namespace Minute
-
-  ||| A second in a minute.
-  public export
-  record Secondo where
-    constructor MkSecondo
-    getSecondo : Fin 60
