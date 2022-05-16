@@ -101,7 +101,7 @@ namespace Annus
 namespace Mensis
 
   public export
-  dies : (bisextilis : Bool) -> (mensis : Annus.Mensis) -> Nat
+  dies : (bisextilis : Bool) -> (mensis : Mensis) -> Nat
   dies bisextilis mensis = case mensis of
     Martius => 31
     Aprilis => 30
@@ -118,7 +118,7 @@ namespace Mensis
 
   ||| A day in a month.
   public export
-  record Dies (bisextilis : Bool) (mensis : Annus.Mensis) where
+  record Dies (bisextilis : Bool) (mensis : Mensis) where
     constructor MkDies
     getDies : Fin (dies bisextilis mensis)
 
@@ -126,7 +126,7 @@ namespace Mensis
   record Date where
     constructor MkDate
     annus : Annus
-    mensis : Annus.Mensis
+    mensis : Mensis
     dies : Dies (bisextus annus) mensis
 
   -- TODO
