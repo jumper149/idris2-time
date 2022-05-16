@@ -82,11 +82,11 @@ namespace Annus
           JDN
   toJDN date =
     case getAnnus date.annus of
-    Z => MkJDN . finToNat $ getDies date.dies
-    S Z => MkJDN $ dies False + getJDN (toJDN $ MkDate date.annus date.dies)
-    S (S Z) => MkJDN $ dies False + dies False + getJDN (toJDN $ MkDate date.annus date.dies)
-    S (S (S Z)) => MkJDN $ dies False + dies False + dies False + getJDN (toJDN $ MkDate date.annus date.dies)
-    S (S (S (S n))) => MkJDN $ dies False + dies False + dies False + dies True + getJDN (toJDN $ MkDate date.annus date.dies)
+      Z => MkJDN . finToNat $ getDies date.dies
+      S Z => MkJDN $ dies False + getJDN (toJDN $ MkDate date.annus date.dies)
+      S (S Z) => MkJDN $ dies False + dies False + getJDN (toJDN $ MkDate date.annus date.dies)
+      S (S (S Z)) => MkJDN $ dies False + dies False + dies False + getJDN (toJDN $ MkDate date.annus date.dies)
+      S (S (S (S n))) => MkJDN $ dies False + dies False + dies False + dies True + getJDN (toJDN $ MkDate date.annus date.dies)
 
   -- TODO
   public export
