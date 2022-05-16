@@ -17,6 +17,7 @@ record JD where
   getFraction : Double -- TODO: This should be a rational number `x` respecting `0 <= x < 1`.
 
 ||| A year in the Julian calendar.
+||| This represents the "anno domini" (AD).
 ||| Usually the first year is labeled one, but here we use zero as our first year.
 public export
 record Annus where
@@ -27,18 +28,23 @@ record Annus where
 bisextus : Annus -> Bool
 bisextus annus =
   case getAnnus annus of
-    Z => True
+    Z => False
     S Z => False
     S (S Z) => False
-    S (S (S Z)) => False
+    S (S (S Z)) => True
     S (S (S (S n))) => bisextus $ MkAnnus n
+
+bisextusProof : {n : Nat} -> bisextus (MkAnnus (S (S (S (S n))))) = bisextus (MkAnnus n)
+bisextusProof = Refl
 
 namespace Annus
 
   ||| A month in a year.
   public export
   data Mensis
-    = Martius
+    = Ianuarius
+    | Februarius
+    | Martius
     | Aprilis
     | Maius
     | Iunius
@@ -48,8 +54,6 @@ namespace Annus
     | October
     | November
     | December
-    | Ianuarius
-    | Februarius
 
   ||| The 7th month has been renamed after "Gaius Julius Caesar".
   public export
@@ -71,6 +75,7 @@ namespace Annus
     constructor MkDies
     getDies : Fin (dies bisextilis)
 
+  ||| A real day in the history of the earth after 1AD.
   public export
   record Date where
     constructor MkDate
@@ -80,19 +85,26 @@ namespace Annus
   public export
   toJDN : (date : Date) ->
           JDN
-  toJDN date =
-    case getAnnus date.annus of
-      Z => MkJDN . finToNat $ getDies date.dies
-      S Z => MkJDN $ dies False + getJDN (toJDN $ MkDate date.annus date.dies)
-      S (S Z) => MkJDN $ dies False + dies False + getJDN (toJDN $ MkDate date.annus date.dies)
-      S (S (S Z)) => MkJDN $ dies False + dies False + dies False + getJDN (toJDN $ MkDate date.annus date.dies)
-      S (S (S (S n))) => MkJDN $ dies False + dies False + dies False + dies True + getJDN (toJDN $ MkDate date.annus date.dies)
+  toJDN date with (date)
+    _ | MkDate (MkAnnus (S (S (S (S n))))) d =
+      let recJDN = toJDN $ MkDate (MkAnnus n) d
+      in MkJDN $ dies False + dies False + dies False + dies True + getJDN recJDN
+    _ | MkDate (MkAnnus Z) d = MkJDN . finToNat $ getDies d
+    _ | MkDate (MkAnnus (S Z)) d =
+      MkJDN $ dies False + finToNat (getDies d)
+    _ | MkDate (MkAnnus (S (S Z))) d =
+      MkJDN $ dies False + dies False + finToNat (getDies d)
+    _ | MkDate (MkAnnus (S (S (S Z)))) d =
+      MkJDN $ dies False + dies False + dies False + finToNat (getDies d)
 
   -- TODO
   public export
   fromJDN : (jdn : JDN) ->
             Date
-  fromJDN jdn = ?fromJDN_rhs
+  fromJDN jdn =
+    case getJDN jdn of
+      Z => MkDate (MkAnnus Z) (MkDies FZ)
+      _ => ?from_JDN_rhs
 
   -- TODO
   proof1 : x = fromJDN (toJDN x)
@@ -103,6 +115,8 @@ namespace Mensis
   public export
   dies : (bisextilis : Bool) -> (mensis : Mensis) -> Nat
   dies bisextilis mensis = case mensis of
+    Ianuarius => 31
+    Februarius => if bisextilis then 29 else 28
     Martius => 31
     Aprilis => 30
     Maius => 31
@@ -113,8 +127,6 @@ namespace Mensis
     October => 31
     November => 30
     December => 31
-    Ianuarius => 31
-    Februarius => if bisextilis then 29 else 28
 
   ||| A day in a month.
   public export
