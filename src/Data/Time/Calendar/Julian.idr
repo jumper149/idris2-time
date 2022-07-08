@@ -8,7 +8,7 @@ import Data.Fin
 public export
 record JDN where
   constructor MkJDN
-  getJDN : Nat
+  getJDN : Integer
 
 ||| The Julian date (JD) is an instant in time.
 ||| It consists of a Julian day number (JDN) plus the fraction of a day, that has passed, until the next Julian day starts at noon.
@@ -22,22 +22,65 @@ record JD where
 ||| This represents the "anno domini" (AD).
 ||| Usually the first year is labeled one, but here we use zero as our first year.
 public export
-record Annus where
-  constructor MkAnnus
-  getAnnus : Nat
+data Annus : Type where
+  AnnusDomini : Annus
+  AD : (n : Nat) -> {auto isSucc : IsSucc n} -> Annus
+  BC : (n : Nat) -> {auto isSucc : IsSucc n} -> Annus
+
+previous : Annus -> Annus
+previous annus =
+  case annus of
+       AnnusDomini => BC (S Z)
+       AD (S Z) => AnnusDomini
+       AD (S (S n)) => AD (S n)
+       BC n => BC (S n)
+
+next : Annus -> Annus
+next annus =
+  case annus of
+       AnnusDomini => AD (S Z)
+       AD n => AD (S n)
+       BC (S Z) => AnnusDomini
+       BC (S (S n)) => BC (S n)
 
 ||| Every 4th year is a leap year.
 bisextus : Annus -> Bool
 bisextus annus =
-  case getAnnus annus of
-    Z => False
-    S Z => False
-    S (S Z) => False
-    S (S (S Z)) => True
-    S (S (S (S n))) => bisextus $ MkAnnus n
+  case annus of
+    AnnusDomini => False
+    AD (S Z) => False
+    AD (S (S Z)) => False
+    AD (S (S (S Z))) => False
+    AD (S (S (S (S n)))) =>
+      case n of
+        Z => True
+        S _ => bisextus $ AD n
+    BC (S Z) => True
+    BC (S (S Z)) => False
+    BC (S (S (S Z))) => False
+    BC (S (S (S (S n)))) =>
+      case n of
+        Z => False
+        S _ => bisextus $ BC n
 
-bisextusProof : {n : Nat} -> bisextus (MkAnnus (S (S (S (S n))))) = bisextus (MkAnnus n)
-bisextusProof = Refl
+annusToInteger : Annus -> Integer
+annusToInteger annus =
+  case annus of
+    AnnusDomini => 0
+    AD n => natToInteger n
+    BC n => - natToInteger n
+
+integerAnnus : Integer -> Annus
+integerAnnus n =
+  case compare n 0 of
+    EQ => AnnusDomini
+    LT => case succNat of (n ** _) => BC n
+    GT => case succNat of (n ** _) => AD n
+  where
+    succNat : (n ** IsSucc n)
+    succNat = case integerToNat $ abs n of
+                   Z => ?zeroCaseAlreadyCaught
+                   n@(S _) => (n ** ItIsSucc)
 
 namespace Annus
 
@@ -87,17 +130,14 @@ namespace Annus
   public export
   toJDN : (date : Date) ->
           JDN
-  toJDN date with (date)
-    _ | MkDate (MkAnnus (S (S (S (S n))))) d =
-      let recJDN = toJDN $ MkDate (MkAnnus n) d
-      in MkJDN $ dies False + dies False + dies False + dies True + getJDN recJDN
-    _ | MkDate (MkAnnus Z) d = MkJDN . finToNat $ getDies d
-    _ | MkDate (MkAnnus (S Z)) d =
-      MkJDN $ dies False + finToNat (getDies d)
-    _ | MkDate (MkAnnus (S (S Z))) d =
-      MkJDN $ dies False + dies False + finToNat (getDies d)
-    _ | MkDate (MkAnnus (S (S (S Z)))) d =
-      MkJDN $ dies False + dies False + dies False + finToNat (getDies d)
+  toJDN date = MkJDN $ finToInteger date.dies.getDies + annusToInteger date.annus
+    where
+      annusToInteger : Annus -> Integer
+      annusToInteger annus =
+        case annus of
+             AnnusDomini => 0
+             BC _ => let x = next annus in annusToInteger x - natToInteger (dies (bisextus x))
+             AD _ => let x = previous annus in annusToInteger x + natToInteger (dies (bisextus x))
 
   -- TODO
   public export
@@ -105,7 +145,6 @@ namespace Annus
             Date
   fromJDN jdn =
     case getJDN jdn of
-      Z => MkDate (MkAnnus Z) (MkDies FZ)
       _ => ?from_JDN_rhs
 
   -- TODO
@@ -145,9 +184,12 @@ namespace Mensis
 
   -- TODO
   public export
-  toJDN : (date : Mensis.Date) -> -- TODO: Why is it necessary to qualify the type of `date`.
+  toJDN : (date : Mensis.Date) ->
           JDN
-  toJDN date = ?toJDN_rhs
+  toJDN date = Annus.toJDN $ MkDate date.annus diesAnni
+    where
+      diesAnni : Annus.Dies (bisextus date.annus)
+      diesAnni = ?diesAnni_rhs_0
 
   -- TODO
   public export
