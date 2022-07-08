@@ -5,12 +5,14 @@ import Data.Fin
 ||| The Julian day is a continuous count of days.
 ||| The Julian day number (JDN) is the integer assigned with that day.
 ||| A new day starts at noon and lasts until the next noon.
+public export
 record JDN where
   constructor MkJDN
   getJDN : Nat
 
 ||| The Julian date (JD) is an instant in time.
 ||| It consists of a Julian day number (JDN) plus the fraction of a day, that has passed, until the next Julian day starts at noon.
+public export
 record JD where
   constructor MkJD
   getJDN : JDN
@@ -156,3 +158,19 @@ namespace Mensis
   -- TODO
   proof1 : x = Mensis.fromJDN (Mensis.toJDN x)
   proof2 : x = Mensis.toJDN (Mensis.fromJDN x)
+
+-- TODO
+public export
+dateAnnusToMensis : (date : Annus.Date) ->
+                    Mensis.Date
+dateAnnusToMensis date = ?dateAnnusToMensis_rhs
+
+-- TODO
+public export
+dateMensisToAnnus : (date : Mensis.Date) ->
+                    Annus.Date
+dateMensisToAnnus date = ?dateMensisToAnnus_rhs
+
+-- TODO
+proof1 : x = dateAnnusToMensis (dateMensisToAnnus x)
+proof2 : x = dateMensisToAnnus (dateAnnusToMensis x)
